@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Founding AI Engineer · Jill</title>
+<meta name="description" content="Calibrate: Jill learns what a hiring manager values from six pairwise picks and re-ranks the shortlist. Unofficial concept demo for Jack & Jill.">
+<script>window.__errors=[];addEventListener("error",e=>__errors.push(String(e.message)));addEventListener("unhandledrejection",e=>__errors.push(String(e.reason)));</script>
+<link rel="icon" href="assets/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="side" aria-label="Jill navigation">
+    <div class="brand"><img src="assets/jill-avatar.png" alt="" width="32" height="32">Jill</div>
+    <button class="nav" data-nav="inbox">Inbox</button>
+    <button class="nav" data-nav="pipeline">Pipeline</button>
+    <button class="nav on" data-nav="roles" aria-current="page">Roles</button>
+    <div class="roles" id="roleList"></div>
+    <button class="nav" data-nav="more">More</button>
+    <div class="me"><span class="av">RO</span><div>Rhea Okafor<br><span style="color:var(--ink-40)">Northwind Health</span></div></div>
+  </aside>
+  <main class="main">
+    <div class="panel">
+      <div class="phead" id="phead"></div>
+      <nav class="tabs" id="tabs" aria-label="Role views"></nav>
+      <section class="body" id="body" aria-live="polite">
+        <div class="skel" style="height:56px;margin-bottom:12px"></div><div class="skel" style="height:420px"></div>
+      </section>
+      <footer class="foot"><span>Unofficial concept demo by Mohith Gajjela. Not affiliated with Jack &amp; Jill. Synthetic candidates and company.</span><span id="kb"><span class="kbd">?</span> shortcuts</span></footer>
+    </div>
+  </main>
+</div>
+<div class="tip" id="tip"></div>
+<div class="toast" id="toast" role="status"></div>
+<dialog id="help" aria-labelledby="helpT">
+  <h4 id="helpT">Keyboard shortcuts</h4>
+  <table style="width:100%">
+    <tr><td>Pick left / right candidate</td><td><span class="kbd">←</span> <span class="kbd">→</span></td></tr>
+    <tr><td>Not sure</td><td><span class="kbd">s</span></td></tr>
+    <tr><td>Move through candidates</td><td><span class="kbd">j</span> <span class="kbd">k</span></td></tr>
+    <tr><td>Open candidate</td><td><span class="kbd">Enter</span></td></tr>
+    <tr><td>Previous / next candidate</td><td><span class="kbd">[</span> <span class="kbd">]</span></td></tr>
+    <tr><td>Close</td><td><span class="kbd">Esc</span></td></tr>
+    <tr><td>Search</td><td><span class="kbd">/</span></td></tr>
+  </table>
+  <form method="dialog" style="text-align:right;margin-top:14px"><button class="btn ghost">Close</button></form>
+</dialog>
+<script type="module" src="app.js"></script>
+</body>
+</html>

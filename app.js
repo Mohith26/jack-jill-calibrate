@@ -6,7 +6,7 @@ const pct = (x, d = 0) => `${(100 * x).toFixed(d)}%`;
 const STORE = 'jill-calibrate-v1';
 const K_TOP = 10, TARGET_Q = 6, CONFIDENT = 0.85;
 
-const S = { data: null, results: null, answers: [], skipped: [], versions: [], status: {}, q: '', filter: 'all', sel: 0, post: null, view: null, auto: false };
+const S = { data: null, results: null, answers: [], skipped: [], versions: [], status: {}, q: '', filter: 'all', sel: -1, post: null, view: null, auto: false };
 
 function load() { try { const s = JSON.parse(localStorage.getItem(STORE) || '{}'); Object.assign(S, { answers: s.answers || [], skipped: s.skipped || [], versions: s.versions || [], status: s.status || {} }); } catch { /* fresh */ } }
 function save() { localStorage.setItem(STORE, JSON.stringify({ answers: S.answers, skipped: S.skipped, versions: S.versions, status: S.status })); }
@@ -52,7 +52,7 @@ function summary(c) {
   return out;
 }
 function why(c, i) {
-  const s = c.scores, tops = [...s.keys()].sort((a, b) => S.mean[b] * s[b] - S.mean[a] * s[a]).slice(0, 2).map((k) => crit()[k].label.toLowerCase());
+  const s = c.scores, tops = [...s.keys()].sort((a, b) => S.mean[b] * s[b] - S.mean[a] * s[a]).slice(0, 2).map((k) => { const l = crit()[k].label; return l[0].toLowerCase() + l.slice(1); });
   const moved = S.answers.length ? ` After your ${S.answers.length} picks, ${c.name.split(' ')[0]} ranks #${S.pos.get(i) + 1} for you (was #${S.basePos.get(i) + 1}).` : '';
   return `${c.name.split(' ')[0]} is a ${c.archetype.toLowerCase()} whose strongest evidence is on what you weight most: ${tops[0]} and ${tops[1]}.${moved}`;
 }
@@ -119,7 +119,7 @@ function onKey(e) {
   if (e.key === 'ArrowRight') return $('#pickB')?.click();
   if (e.key === 's') return $('#skip')?.click();
   const rows = [...document.querySelectorAll('.row')];
-  if ((e.key === 'j' || e.key === 'k') && rows.length) { S.sel = Math.max(0, Math.min(rows.length - 1, S.sel + (e.key === 'j' ? 1 : -1))); rows.forEach((r, i) => r.classList.toggle('sel', i === S.sel)); rows[S.sel].scrollIntoView({ block: 'nearest' }); }
+  if ((e.key === 'j' || e.key === 'k') && rows.length) { S.sel = Math.max(0, Math.min(rows.length - 1, (S.sel < 0 ? -1 : S.sel) + (e.key === 'j' ? 1 : -1))); rows.forEach((r, i) => r.classList.toggle('sel', i === S.sel)); rows[S.sel].scrollIntoView({ block: 'nearest' }); }
   if (e.key === 'Enter' && rows[S.sel]) location.hash = rows[S.sel].dataset.href;
 }
 
@@ -298,7 +298,15 @@ function renderReport() {
         ${b.map((_, q) => `<text x="${x(q)}" y="${H - 10}" text-anchor="middle">${q}</text>`).join('')}
         ${line(b, '#100f0f')}${line(rd, '#ada598', '5 4')}${line(nz, '#ff9463', '2 3')}
       </svg>
-      <div class="legend"><span><i style="background:#100f0f"></i>Information-gain picks</span><span><i style="background:#ada598"></i>Random pairs</span><span><i style="background:#ff9463"></i>Information-gain, noisier manager</span></div></div>
+      <div class="legend"><span><i style="background:#100f0f"></i>Information-gain picks</span><span><i style="background:#ada598"></i>Random pairs</span><span><i style="background:#ff9463"></i>Information-gain, noisier manager</span></div>
+      <div class="cap" style="margin:22px 0 8px">How it works</div>
+      <ul class="note" style="padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:13.5px">
+        <li>Jill keeps a posterior over how much you weigh each brief criterion: ${R.model.particles.toLocaleString()} weighted particles starting from the brief's written priorities (Dirichlet, concentration ${R.model.concentration}).</li>
+        <li>Each pick is a logistic (Bradley-Terry) observation: the more two candidates differ on what you value, the more predictable your pick.</li>
+        <li>The next pair is the one whose answer is expected to teach Jill the most about your weights (BALD information gain), among the current top 16.</li>
+        <li>When the particles degenerate they are resampled and moved with Metropolis-Hastings steps, which keeps the posterior exact in the limit.</li>
+        <li>The confidence meter is the posterior expected precision@10 of the list you see; the table on the right checks it against simulated managers.</li>
+      </ul></div>
     <div class="card"><div class="cap" style="margin-bottom:8px">Headline</div>
       <table class="t"><tr><td>Brief priorities only</td><td class="num">${pct(R.headline.brief, 1)}</td></tr><tr><td>After 6 information-gain picks</td><td class="num"><b>${pct(R.headline.after6, 1)}</b></td></tr><tr><td>After 6 random pairs</td><td class="num">${pct(R.headline.after6Random, 1)}</td></tr><tr><td>After 6 picks, manager twice as noisy as modelled</td><td class="num">${pct(R.headline.after6Noisy, 1)}</td></tr><tr><td>After 10 picks</td><td class="num">${pct(R.headline.after10, 1)}</td></tr></table>
       <div class="cap" style="margin:16px 0 8px">Is the confidence meter honest?</div>
